@@ -6,8 +6,13 @@ edition = "2021"
 [dependencies]
 dioxus = { workspace = true, features = ["router", "fullstack"] }
 ui = { workspace = true }
+api = { workspace = true }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+axum = { version = "0.8", features = ["ws"] }
+dioxus-server = "0.7.3"
 
 [features]
 default = []
 web = ["dioxus/web"]
-server = ["dioxus/server", "ui/server"]
+server = ["dioxus/server", "ui/server", "api/server"]

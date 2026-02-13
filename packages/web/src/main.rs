@@ -18,6 +18,20 @@ enum Route {
 const FAVICON: Asset = asset!("/assets/favicon.ico");
 const MAIN_CSS: Asset = asset!("/assets/main.css");
 
+#[cfg(feature = "server")]
+fn main() {
+    use axum::routing::get;
+    use dioxus_server::{DioxusRouterExt, ServeConfig};
+
+    dioxus_server::serve(|| async {
+        let router = axum::Router::new()
+            .route("/ws", get(api::ws::ws_handler))
+            .serve_dioxus_application(ServeConfig::new(), App);
+        Ok(router)
+    });
+}
+
+#[cfg(not(feature = "server"))]
 fn main() {
     dioxus::launch(App);
 }

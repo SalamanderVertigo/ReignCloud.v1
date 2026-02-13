@@ -9,6 +9,8 @@ pub mod auth;
 #[cfg(not(target_arch = "wasm32"))]
 pub mod db;
 pub mod features;
+#[cfg(not(target_arch = "wasm32"))]
+pub mod ws;
 
 // Re-export feature endpoints so consumers can reference them directly.
 pub use features::users::login::login;

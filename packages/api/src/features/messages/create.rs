@@ -43,11 +43,19 @@ pub async fn create_message(req: CreateMessageRequest) -> Result<MessageResponse
     .await
     .map_err(|e| ServerFnError::new(e.to_string()))?;
 
-    Ok(MessageResponse {
+    let response = MessageResponse {
         id: row.0.to_string(),
         sender_id: sender_id.to_string(),
         recipient_id: recipient_id.to_string(),
         content: req.content,
         created_at: row.1.to_rfc3339(),
-    })
+    };
+
+    // Broadcast to recipient and sender via WebSocket
+    if let Ok(json) = serde_json::to_string(&response) {
+        crate::ws::broadcast_to_user(recipient_id, &json);
+        crate::ws::broadcast_to_user(sender_id, &json);
+    }
+
+    Ok(response)
 }

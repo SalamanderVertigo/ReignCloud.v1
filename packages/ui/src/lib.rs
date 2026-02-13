@@ -11,3 +11,6 @@ pub use echo::Echo;
 
 mod auth_test;
 pub use auth_test::AuthTest;
+
+mod use_websocket;
+pub use use_websocket::use_websocket;

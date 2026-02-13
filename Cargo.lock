@@ -42,12 +42,16 @@ checksum = "5f0e0fee31ef5ed1ba1316088939cea399010ed7731dba877ed44aeb407a75ea"
 name = "api"
 version = "0.1.0"
 dependencies = [
+ "axum",
  "bcrypt",
  "chrono",
+ "dashmap",
  "dioxus",
  "dotenvy",
+ "futures-util",
  "jsonwebtoken",
  "serde",
+ "serde_json",
  "sqlx",
  "tokio",
  "uuid",
@@ -5825,6 +5829,12 @@ version = "0.1.0"
 dependencies = [
  "api",
  "dioxus",
+ "futures-util",
+ "gloo-net",
+ "gloo-timers",
+ "serde_json",
+ "wasm-bindgen-futures",
+ "web-sys",
 ]
 
 [[package]]
@@ -6119,7 +6129,10 @@ dependencies = [
 name = "web"
 version = "0.1.0"
 dependencies = [
+ "api",
+ "axum",
  "dioxus",
+ "dioxus-server",
  "ui",
 ]
 

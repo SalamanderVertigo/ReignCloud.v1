@@ -1,6 +1,8 @@
 use dioxus::prelude::*;
 
-/// Temporary smoke-test component for auth + messages.
+use crate::use_websocket;
+
+/// Temporary smoke-test component for auth + messages + WebSocket.
 #[component]
 pub fn AuthTest() -> Element {
     // Auth state
@@ -15,6 +17,9 @@ pub fn AuthTest() -> Element {
     let mut message_content = use_signal(|| String::new());
     let mut message_id = use_signal(|| String::new());
 
+    // WebSocket: real-time incoming messages
+    let ws_messages = use_websocket(token);
+
     let handle_register = move |_| async move {
         let req = api::features::users::register::RegisterRequest {
             email: email(),
@@ -25,7 +30,7 @@ pub fn AuthTest() -> Element {
             Ok(tokens) => {
                 token.set(tokens.access_token.clone());
                 result_text.set(format!(
-                    "Registration successful!\nToken stored for message testing.\n\nAccess token:\n{}",
+                    "Registration successful!\nToken stored. WebSocket connecting...\n\nAccess token:\n{}",
                     tokens.access_token
                 ));
             }
@@ -42,7 +47,7 @@ pub fn AuthTest() -> Element {
             Ok(tokens) => {
                 token.set(tokens.access_token.clone());
                 result_text.set(format!(
-                    "Login successful!\nToken stored for message testing.\n\nAccess token:\n{}",
+                    "Login successful!\nToken stored. WebSocket connecting...\n\nAccess token:\n{}",
                     tokens.access_token
                 ));
             }
@@ -59,10 +64,7 @@ pub fn AuthTest() -> Element {
         match api::create_message(req).await {
             Ok(msg) => {
                 message_id.set(msg.id.clone());
-                result_text.set(format!(
-                    "Message sent!\nid: {}\nsender: {}\nrecipient: {}\ncontent: {}\ncreated_at: {}",
-                    msg.id, msg.sender_id, msg.recipient_id, msg.content, msg.created_at
-                ));
+                result_text.set(format!("Message sent! id: {}", msg.id));
             }
             Err(e) => result_text.set(format!("Send failed: {e}")),
         }
@@ -96,10 +98,7 @@ pub fn AuthTest() -> Element {
         };
         match api::update_message(req).await {
             Ok(msg) => {
-                result_text.set(format!(
-                    "Message updated!\nid: {}\ncontent: {}",
-                    msg.id, msg.content
-                ));
+                result_text.set(format!("Message updated!\nid: {}\ncontent: {}", msg.id, msg.content));
             }
             Err(e) => result_text.set(format!("Update failed: {e}")),
         }
@@ -182,6 +181,31 @@ pub fn AuthTest() -> Element {
                 pre {
                     style: "margin-top: 1rem; padding: 0.5rem; background: #f0f0f0; border-radius: 4px; white-space: pre-wrap; word-break: break-all; font-size: 0.8rem;",
                     "{result_text}"
+                }
+            }
+
+            hr { style: "margin: 1rem 0;" }
+
+            h3 { "Real-Time Messages (WebSocket)" }
+            if token().is_empty() {
+                p { style: "color: #888;", "WebSocket connects after login/register." }
+            }
+            div {
+                style: "max-height: 300px; overflow-y: auto; padding: 0.5rem; background: #fafafa; border: 1px solid #eee; border-radius: 4px;",
+                if ws_messages().is_empty() {
+                    p { style: "color: #aaa;", "No real-time messages yet. Send one from another browser!" }
+                }
+                for msg in ws_messages().iter().rev() {
+                    div {
+                        style: "padding: 0.25rem 0; border-bottom: 1px solid #eee; font-size: 0.85rem;",
+                        strong { "{msg.sender_id}" }
+                        " -> "
+                        strong { "{msg.recipient_id}" }
+                        br {}
+                        "{msg.content}"
+                        br {}
+                        small { style: "color: #888;", "{msg.created_at}" }
+                    }
                 }
             }
         }
