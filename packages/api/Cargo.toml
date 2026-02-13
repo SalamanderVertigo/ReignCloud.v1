@@ -1,0 +1,20 @@
+[package]
+name = "api"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dioxus = { workspace = true, features = ["fullstack"] }
+serde = { version = "1", features = ["derive"] }
+
+[target.'cfg(not(target_arch = "wasm32"))'.dependencies]
+sqlx = { version = "0.8", features = ["runtime-tokio", "tls-rustls", "postgres", "uuid", "chrono"] }
+jsonwebtoken = "9"
+bcrypt = "0.17"
+chrono = { version = "0.4", features = ["serde"] }
+uuid = { version = "1", features = ["v4", "serde"] }
+dotenvy = "0.15"
+tokio = { version = "1", features = ["full"] }
+
+[features]
+server = ["dioxus/server"]
