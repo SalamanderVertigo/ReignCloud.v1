@@ -1,10 +1,11 @@
 use dioxus::prelude::*;
-use ui::{Echo, Hero};
+use ui::{AuthTest, Echo, Hero};
 
 #[component]
 pub fn Home() -> Element {
     rsx! {
         Hero {}
         Echo {}
+        AuthTest {}
     }
 }
